@@ -1,61 +1,67 @@
-from socket import socket,AF_INET,SOCK_STREAM
+#Usando Python3
+#Servidor de Chat.
+from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
- 
-#classe para manipular o socket
-class Send:
- def __init__(self):
-  self.__msg=''
-  self.new=True
-  self.con=None
- def put(self,msg):
-  self.__msg=msg
-  if self.con != None:
-   #envia um mensagem atravez de uma conexão socket
-   self.con.send(str.encode(self.__msg))
- def get(self):
-  return self.__msg
- def loop(self):
-  return self.new
- 
-#função esperar - Thread
-def esperar(tcp,send,host='',port=1997):
- 
- origem=(host,port)
- #cria um vinculo
- tcp.bind(origem)
- #deixa em espera
- tcp.listen(1)
+
+
+def accept_incoming_connections():
+    """Sets up handling for incoming clients."""
+    while True:
+        client, client_address = SERVER.accept()
+        print("%s:%s está conectado." % client_address)
+        client.send(bytes("Digite seu nome e pressione enter.", "utf8"))
+        addresses[client] = client_address
+        Thread(target=handle_client, args=(client,)).start()
+
+
+def handle_client(client):  # Takes client socket as argument.
+    """Handles a single client connection."""
+    try:
+        name = client.recv(BUFSIZ).decode("utf8")
+        welcome = 'Bem Vindo(a) %s! Se quiser sair digite {sair}.' % name
+        client.send(bytes(welcome, "utf8"))
+        msg = "%s entrou no chat" % name
+        broadcast(bytes(msg, "utf8"))
+        clients[client] = name
+
+        while True:
+            msg = client.recv(BUFSIZ)
+            if msg != bytes("{sair}", "utf8"):
+                broadcast(msg, name+": ")
+            else:
+                client.send(bytes("{sair}", "utf8"))
+                print('test')
+                client.close()
+                print('test2')
+                del clients[client]
+                broadcast(bytes("%s saiu do chat." % name, "utf8"))
+                break
+    except:
+        print("%s saiu do chat" % name)
+
+
+def broadcast(msg, prefix=""):  # prefix is for name identification.
+  #Envia a mensagem para todos os clientes.
   
- while True:
-  #aceita um conexão
-  con,cliente=tcp.accept()
-  print('Cliente ',cliente,' conectado!')
-  #atribui a conexão ao manipulador
-  send.con=con
-   
-  while True:
-   #aceita uma mensagem
-   msg=con.recv(1024)
-   msg = "<".join(str(cliente)).join(">").join(msg)
-   if not msg: break
-   print(str(msg,'utf-8'))
- 
-if __name__ == '__main__':
- #cria um socket
- tcp=socket(AF_INET,SOCK_STREAM)
- send=Send()
- #cria um Thread e usa a função esperar com dois argumentos
- processo=Thread(target=esperar,args=(tcp,send))
- processo.start()
-  
- print('Iniciando o servidor de chat!')
- print('Aguarde alguém conectar!')
-  
- msg=input()
- while True:
-  send.put("<".join(cliente).join(">").join(msg))
-  msg=input()
-  
- processo.join()
- tcp.close()
- exit()
+    for sock in clients:
+      sock.send(bytes(prefix, "utf8")+msg)
+
+        
+clients = {}
+addresses = {}
+
+HOST = ''
+PORT = 1997
+BUFSIZ = 4096
+ADDR = (HOST, PORT)
+
+SERVER = socket(AF_INET, SOCK_STREAM)
+SERVER.bind(ADDR)
+
+if __name__ == "__main__":
+    SERVER.listen(5)
+    print("Waiting for connection...")
+    ACCEPT_THREAD = Thread(target=accept_incoming_connections)
+    ACCEPT_THREAD.start()
+    ACCEPT_THREAD.join()
+    SERVER.close()
