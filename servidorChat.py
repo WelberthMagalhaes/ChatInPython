@@ -1,48 +1,49 @@
 #Usando Python3
 #Servidor de Chat.
+#Trabalho Prático disciplina Fundamentos de Redes de Computadores
+#Professor Marlon Paolo Lima
+
+#Aluno Welberth Heider Magalhães de Araújo - 16.1.8111
+
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 
-#testee
-def accept_incoming_connections():
-    """Sets up handling for incoming clients."""
+
+def aceitar_conexoes_entrada():
+    """Tratamento inicial da conexão do cliente"""
     while True:
-        client, client_address = SERVER.accept()
+        client, client_address = SERVER.accept()  #Retorna o novo objeto socket e o endereço na outra extremidade(conn, address)
         print("%s:%s está conectado." % client_address)
-        client.send(bytes("Digite seu nome e pressione enter.", "utf8"))
+        client.send(bytes("Digite seu nome e pressione enter.", "utf8")) #Envia 1ª mensagem pelo socket
         addresses[client] = client_address
-        Thread(target=handle_client, args=(client,)).start()
+        Thread(target=controla_cliente, args=(client,)).start()
 
 
-def handle_client(client):  # Takes client socket as argument.
-    """Handles a single client connection."""
-    try:
-        name = client.recv(BUFSIZ).decode("utf8")
-        welcome = 'Bem Vindo(a) %s! Se quiser sair digite {sair}.' % name
-        client.send(bytes(welcome, "utf8"))
-        msg = "%s entrou no chat" % name
-        broadcast(bytes(msg, "utf8"))
-        clients[client] = name
+def controla_cliente(client):  # Recebe o socket de cliente
+    """Controla uma conexão do cliente."""
+    name = client.recv(BUFSIZ).decode("utf8") #Recebe o nome que o usuário digitar
+    welcome = 'Bem Vindo(a) %s! Se quiser sair digite {sair}.' % name
+    client.send(bytes(welcome, "utf8"))
+    msg = "%s entrou no chat" % name
+    broadcast(bytes(msg, "utf8"))
+    clients[client] = name
 
-        while True:
-            msg = client.recv(BUFSIZ)
-            if msg != bytes("{sair}", "utf8"):
-                broadcast(msg, name+": ")
-            else:
-                client.send(bytes("{sair}", "utf8"))
-                print('test')
-                client.close()
-                print('test2')
-                del clients[client]
-                broadcast(bytes("%s saiu do chat." % name, "utf8"))
-                break
-    except:
-        print("%s saiu do chat" % name)
+    while True:
+        msg = client.recv(BUFSIZ)
+        if msg != bytes("{sair}", "utf8"):
+            broadcast(msg, name+": ")
+        else:
+            #client.send(bytes("{sair}", "utf8"))
+            client.close()
+            del clients[client]
+            broadcast(bytes("%s saiu do chat." % name, "utf8"))
+            print("%s saiu do chat" % name)
+            break
+    
 
 
-def broadcast(msg, prefix=""):  # prefix is for name identification.
-  #Envia a mensagem para todos os clientes.
-  
+def broadcast(msg, prefix=""):
+  #Envia a mensagem para todos os clientes.  
     for sock in clients:
       sock.send(bytes(prefix, "utf8")+msg)
 
@@ -50,7 +51,7 @@ def broadcast(msg, prefix=""):  # prefix is for name identification.
 clients = {}
 addresses = {}
 
-HOST = ''
+HOST = '10.0.0.148'
 PORT = 1997
 BUFSIZ = 4096
 ADDR = (HOST, PORT)
@@ -60,8 +61,8 @@ SERVER.bind(ADDR)
 
 if __name__ == "__main__":
     SERVER.listen(5)
-    print("Waiting for connection...")
-    ACCEPT_THREAD = Thread(target=accept_incoming_connections)
+    print("Esperando por conexões...")
+    ACCEPT_THREAD = Thread(target=aceitar_conexoes_entrada)
     ACCEPT_THREAD.start()
     ACCEPT_THREAD.join()
     SERVER.close()

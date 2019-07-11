@@ -1,8 +1,10 @@
 #Usando Python3
 #Cliente de Chat com interface Tkinter
+#Trabalho Prático disciplina Fundamentos de Redes de Computadores
+#Professor Marlon Paolo Lima
 
+#Aluno Welberth Heider Magalhães de Araújo - 16.1.8111
 
-##testeeeeeeeeeeeeeee
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 import tkinter
@@ -11,7 +13,7 @@ def receive():
     #Trata o recebimento de mensagens
     while True:
         try:
-            #função recv() interrompe a execução até receber uma mensagem, após, a mensagem é anexa na msg_list
+            #função recv() interrompe a execução da thread até receber uma mensagem, após, a mensagem é anexa na msg_list
             msg = cliente_socket.recv(BUFSIZ).decode("utf8")
             msg_list.insert(tkinter.END, msg)
         except OSError: #Cliente pode ter deixado o chat
@@ -27,6 +29,7 @@ def send(event=None):
         cliente_socket.close() #fecha o socket do cliente se msg = sair
         top.quit() #fecha o app da GUI
 
+
 def on_closing(event=None):#Essa função deve ser chamada quando a janela é fechada
     my_msg.set("{sair}")
     send()
@@ -35,11 +38,11 @@ def on_closing(event=None):#Essa função deve ser chamada quando a janela é fe
 
 #Início da GUI
 top = tkinter.Tk()
-top.title("Chat")
+top.title('CHAT')
 
 messages_frame = tkinter.Frame(top)
 my_msg = tkinter.StringVar()
-my_msg.set("Digite sua mensagem aqui...")
+#my_msg.set("Digite sua mensagem aqui...")
 scrollbar = tkinter.Scrollbar(messages_frame) #Para rolar para mensagens anteriores
 
 #Parte da GUI que contém as mensagens
@@ -47,7 +50,7 @@ msg_list = tkinter.Listbox(messages_frame, height=15, width=50, yscrollcommand=s
 scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
 msg_list.pack(side=tkinter.LEFT, fill=tkinter.BOTH)
 msg_list.pack
-
+scrollbar.config(command=msg_list.yview)
 messages_frame.pack()
 
 campo_entrada = tkinter.Entry(top, textvariable=my_msg)
