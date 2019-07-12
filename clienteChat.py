@@ -13,14 +13,20 @@ def receive():
     #Trata o recebimento de mensagens
     while True:
         try:
-            #função recv() interrompe a execução da thread até receber uma mensagem, após, a mensagem é anexa na msg_list
+            """
+            função recv() interrompe a execução da thread até receber uma mensagem,
+            após, a mensagem é anexa na msg_list
+            """
             msg = cliente_socket.recv(BUFSIZ).decode("utf8")
             msg_list.insert(tkinter.END, msg)
         except OSError: #Cliente pode ter deixado o chat
             break
 
 def send(event=None): 
-    """event está como argumento pois o Tkinter, quando o botão enviar é pressionado, passa o argumento implicitamente"""
+    """event está como argumento pois o Tkinter,
+       quando o botão enviar é pressionado,
+       passa o argumento implicitamente
+    """
     #Trata o envio de mensagens
     msg = my_msg.get() #my_msg e o campo de entrada na GUI
     my_msg.set("") #limpa a entrada
@@ -73,6 +79,7 @@ ADDR = (HOST, PORT)
 cliente_socket = socket(AF_INET, SOCK_STREAM)
 cliente_socket.connect(ADDR)
 
+"""Cria uma thread para o cliente que executará o método receive()- linha 12"""
 recebe_thread = Thread(target=receive)
-recebe_thread.start() #Thread para o cliente receber mensagens
+recebe_thread.start() #Inicia a thread para o cliente receber mensagens
 tkinter.mainloop() #Inicia execução da inteface

@@ -11,9 +11,11 @@ from threading import Thread
 def aceitar_conexoes_entrada():
     """Tratamento inicial da conexão do cliente"""
     while True:
-        client, client_address = SERVER.accept()  #Retorna o novo objeto socket e o endereço na outra extremidade(conn, address)
+    	#Retorna o novo objeto socket e o endereço na outra extremidade(conn, address)
+        client, client_address = SERVER.accept()
         print("%s:%s está conectado." % client_address)
-        client.send(bytes("Digite seu nome e pressione enter.", "utf8")) #Envia 1ª mensagem pelo socket
+        #Envia 1ª mensagem pelo socket
+        client.send(bytes("Digite seu nome e pressione enter.", "utf8"))
         addresses[client] = client_address
         Thread(target=controla_cliente, args=(client,)).start()
 
@@ -28,11 +30,11 @@ def controla_cliente(client):  # Recebe o socket de cliente
     clients[client] = name
 
     while True:
+    	#recebe mensagem do cliente e envia à todos os conectados
         msg = client.recv(BUFSIZ)
         if msg != bytes("{sair}", "utf8"):
             broadcast(msg, name+": ")
         else:
-            #client.send(bytes("{sair}", "utf8"))
             client.close()
             del clients[client]
             broadcast(bytes("%s saiu do chat." % name, "utf8"))
@@ -50,7 +52,7 @@ def broadcast(msg, prefix=""):
 clients = {}
 addresses = {}
 
-HOST = '10.0.0.148'
+HOST = ''
 PORT = 1997
 BUFSIZ = 4096
 ADDR = (HOST, PORT)
