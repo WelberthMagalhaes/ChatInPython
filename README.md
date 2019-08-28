@@ -2,7 +2,7 @@
 Chat utilizando SOCKET TCP  para comunicação.
 
 CERTIFIQUE-SE DE TER INSTALADO O PYTHON versão 3.x
-CASO FOR EXECUTAR SERVIDOR E CLEINTE EM MÁQUINAS DIFERENTES, CONSULTE QUAL IP ESTÁ O HOST SERVIDOR.
+CASO FOR EXECUTAR SERVIDOR E CLIENTE EM MÁQUINAS DIFERENTES, CONSULTE QUAL IP ESTÁ O HOST SERVIDOR.
 
 Para iniciar a aplicação servidor, abra o terminal de comandos no diretório onde se encontra o arquivo do servidor e digite:
 	py servidorChat.py
